@@ -50,8 +50,8 @@ class LocalBitcoinsAPI():
             access_token = token_file.read()
             return access_token
         except IOError, exc:
-            self.username = 'botsofbitcoin' #raw_input("Username: ")
-            self.password = '4y0hD4aulVbz' #raw_input("Password: ")
+            self.username = raw_input("Username: ")
+            self.password = raw_input("Password: ")
     
         token_response = requests.post(
             "https://localbitcoins.com/oauth2/access_token/", 
