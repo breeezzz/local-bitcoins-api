@@ -98,7 +98,3 @@ class LocalBitcoinsAPI():
                         'max_amount': max_amount,
                         'price_equation': price_equation})
         return response.text
-
-def test():    
-	
-    client = LocalBitcoinsAPI()
