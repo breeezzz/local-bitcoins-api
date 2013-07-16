@@ -142,7 +142,7 @@ class OkPayAPI():
                         
         return response
 
-    def get_history(self, start=None, end=None, page_size=50, page_num=1):
+    def get_history(self, start=None, end=None, page_size=50, page_num=1, transactions={}):
         if start == None:
             start = '2000-01-01 00:00:00' # Should be before the earliest OKPay transaction
         if end == None:
@@ -153,10 +153,13 @@ class OkPayAPI():
                         start, end,
                         page_size, page_num)
             
-            transactions = {}
             for transaction in response.Transactions:
                 for item in transaction[1]:
-                    transactions[item.ID] = self._parse_transaction(item)                    
+                    transactions[item.ID] = self._parse_transaction(item)
+                    
+            # Recursively continue to add to transactions if required
+            if response.PageCount > response.PageNumber:
+                self.get_history(start, end, page_size, page_num+1, transactions)
             response = {'success': 1, 'transactions': transactions}
             
         except WebFault, e:
@@ -255,9 +258,9 @@ def test():
     print client2.get_withdrawal_fee('BTC', 0.10, 'USD', True)
     
     print "Withdrawing to BTC from test account 2",
-    print client2.withdraw_to_BTC('13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo', 0.10, 'USD')
+    print client2.withdraw_to_BTC('13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo', 0.25, 'BTC')
     
     print "Tests complete at",
     print client2.get_date_time()
 
-#test()
+test()

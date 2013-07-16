@@ -35,46 +35,65 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import requests
 import logging
-logging.basicConfig(level=logging.INFO)
-
-CLIENT_ID = "add yours here"
-CLIENT_SECRET = "add yours here"
+logging.basicConfig(level=logging.WARNING)
 
 class LocalBitcoinsAPI():
-    def __init__(self):
+    def __init__(self, client_id=None, client_secret=None, username=None, password=None):
+        ''' Set up your API Access Information
+            https://www.okpay.com/en/developers/interfaces/setup.html '''
+        if client_id == None:
+            self.client_id = "your details here"
+        else:
+            self.client_id = client_id
+            
+        if client_secret == None:
+            self.client_secret = "your details here"
+        else:
+            self.client_secret = client_secret
+            
+        if username == None:
+            self.username = "your details here"
+        else:
+            self.username = username
+            
+        if password == None:
+            self.password = "your details here"
+        else:
+            self.password = password
+            
         self.access_token = self.get_access_token()
 
     def get_access_token(self):
         try:
-            token_file = open(".localbitcoins_token", "r")
+            token_file = open(".localbitcoins_token%s" % self.username, "r")
             access_token = token_file.read()
             return access_token
         except IOError, exc:
-            self.username = raw_input("Username: ")
-            self.password = raw_input("Password: ")
+            print 'Require user details'
+            pass
     
         token_response = requests.post(
             "https://localbitcoins.com/oauth2/access_token/", 
             data={
                 "grant_type": "password",
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
                 "username": self.username,
                 "password": self.password,
                 "scope": "read+write"}).json()
         if "access_token" not in token_response:
             exit(1)
         access_token = token_response["access_token"]
-        with open(".localbitcoins_token", "w") as f:
+        with open(".localbitcoins_token%s" % self.username, "w") as f:
             f.write(access_token)
         return access_token
     
     def get_escrows(self):
-        response = requests.get(
+        response = requests.post(
                 'https://localbitcoins.com/api/escrows/',
                 data={'access_token': self.access_token})
         return response.text
-    
+        
     def release_escrow(self, escrow):
         release_url = escrow['actions']['release_url']
         response = requests.post(
@@ -98,3 +117,36 @@ class LocalBitcoinsAPI():
                         'max_amount': max_amount,
                         'price_equation': price_equation})
         return response.text
+
+def test():
+    with open('C:\Users\Jamie\lba_config.txt') as f:
+        creds = {}
+        for line in f:
+            creds[line.split(',')[0]] = line.split(',')[1].rstrip('\n')
+
+    client1 = LocalBitcoinsAPI(creds['lb_client_id1'], creds['lb_client_secret1'],
+                               creds['lb_username1'], creds['lb_password1'])
+    client2 = LocalBitcoinsAPI(creds['lb_client_id2'], creds['lb_client_secret2'],
+                               creds['lb_username2'], creds['lb_password2'])
+
+    print "Checking ads for test account 1",
+    print client1.get_ads()[-4:]
+    print "Checking ads for test account 2",
+    print client2.get_ads()
+    
+    print "Checking escrows for test account 1",
+    print client1.get_escrows()
+    print "Checking escrows for test account 2",
+    escrows = client2.get_escrows()
+    print escrows
+    print "Checking for 'botsofbitcoin' on test account 2 escrows",
+    for escrow in escrows:
+        if escrow['data']['buyer_username'] == 'botsofbitcoin':
+            print 'OK'
+    print "Releasing escrow",
+    for escrow in escrows:
+        if escrow['data']['buyer_username'] == 'botsofbitcoin':
+            client2.release_escrow(escrow)
+    print
+    print "Testing complete"
+test()

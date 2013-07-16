@@ -14,13 +14,13 @@ Until then this should be considered as incomplete and not be relied upon.
 _Tests status_
 
 OKPay API
-- all functions have been tested on live accounts apart from `withdraw_to_ecurrency` and `withdraw_to_BTC`
+- all functions have been tested on live accounts apart from `withdraw_to_ecurrency` and `withdraw_to_BTC` (and given the rates they offer, you're unlikely to want to use them anyway!)
 
 Local Bitcoins API
-- untested as yet
+- untested as yet as my `botsofbitcoin` seller account seems to be inactive
 
 Listener
-- tested locally but not on a remote server
+- tested locally
 
 To use the package:
 
@@ -33,5 +33,6 @@ To use the package:
 4) Start `listener.py` on your server
 
 Requirements:
+'Python 2.7`
 `suds`
 `requests`
