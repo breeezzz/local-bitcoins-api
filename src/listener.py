@@ -75,7 +75,7 @@ def is_transaction_details_ok(postvars):
     ok_client = OkPayAPI()
     ok_transaction = ok_client.get_transaction('transaction_id')
     # TODO: Compare the two sets of transactions to ensure price and quantity match
-    return True
+    return False
 
 def log_response(response):
     with open('okpay_log.txt', 'ab') as log:
