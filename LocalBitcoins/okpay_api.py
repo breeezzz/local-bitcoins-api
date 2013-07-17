@@ -102,6 +102,15 @@ class OkPayAPI():
                         
         return response
     
+    def _parse_withdrawal(self, w):
+        ''' Parser to convert a withdrawal info object to a dict for use by the
+        withdraw_to_ecurrency function '''
+        withdrawal = {'operation_id': w.OperationID, 'payment_system_transaction_id': w.PaySystemTransactionID,
+                      'status': w.Status, 'gross': w.Gross, 'amount': w.Amount, 'fee': w.Fee,
+                      'payment_method_amount': w.PaymentMethodAmount, 'payment_method': w.PaymentMethod,
+                      'currency': w.Currency, 'exchange_rate': w.ExchangeRate}
+        return withdrawal
+    
     def _parse_transaction(self, t):
         ''' Parser to convert a transaction object to a dict for use by the get_transaction,
         withdraw_to_ecurrency and get_history functions '''
@@ -182,7 +191,7 @@ class OkPayAPI():
                         payment_method, pay_system_account,
                         amount, currency,
                         fees_from_amount, invoice)
-            response = {'success': 1, 'transaction': self._parse_transaction(response)}
+            response = {'success': 1, 'transaction': self._parse_withdrawal(response)}
         except WebFault, e:
             response = {'success': 0, 'error': e}
         except Exception, e:

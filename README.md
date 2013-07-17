@@ -19,7 +19,7 @@ _Local Bitcoins API_
 - all functions have been tested on live accounts
 
 _OKPay API_
-- all functions have been tested on live accounts apart from `withdraw_to_ecurrency` and `withdraw_to_BTC` (and given the rates they offer, you're unlikely to want to use them anyway!)
+- all functions have been tested on live accounts
 
 _OKPay Listener_
 - tested locally, however requires hosting on a remote server to test properly with OKPay's IPN simulator.
