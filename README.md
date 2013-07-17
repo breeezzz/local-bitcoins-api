@@ -81,6 +81,7 @@ _Market Depth_ module
 - Call from the command line with a list of countries and/or currencies
 - Currently supports UK, USA, GERMANY, ITALY, SPAIN, AUSTRALIA, ARGENTINA, NETHERLANDS, BRAZIL, FRANCE, GBP, USD, EUR
 - example: `$ python market_depth.py USD GBP EUR`
+![marketdepth](market_depth.jpeg)
 
 ##Requirements
 - `Python 2.7`
