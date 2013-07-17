@@ -56,7 +56,7 @@ In addition, the following functions have been added/extended:
 
 The `listener` module implement OKPay's instant payment notification (IPN) system. In essence this sets up a URL which waits for a message from OKPay, checks it is a valid message and that it applies to a real transaction, and then invokes the `release_escrow` function from `lb_api`.
 
-###Currently this module should be seen as incomplete as it does not check that the price and quantity match those in the corresponding escrow.
+_Currently this module should be seen as incomplete as it does not check that the price and quantity match those in the corresponding escrow._
 
 ##Setup
 To use the API modules:
