@@ -7,7 +7,7 @@ This package contains:
 - `lb_api.py` slightly extended wrapper for the Local Bitcoins API based on that provided by Local Bitcoins and providing some additional functions via HTML where required
 - `okpay_api.py` a complete wrapper for the OKPay API including a facility for Bitcoin payments
 - `listener.py` a listener to receive payment notifications from OKPay's instant payment notification (IPN) system and release escrows on Local Bitcoins
-- `local_markets.py` a bonus command line tool to visualise the current depth of market in various countries and currencies
+- `market_depth.py` a bonus command line tool to visualise the current depth of the Local Bitcoins market in various countries and currencies
 
 ##WARNING
 
@@ -62,9 +62,9 @@ The `listener` module implements OKPay's instant payment notification (IPN) syst
 
 _Currently this module should be seen as incomplete as it does not check that the price and quantity match those in the corresponding escrow._
 
-##OKPay Listener
+##Market Depth
 
-The `local_markets` module pulls prices and available volumes from Local Bitcoins and plots them
+The `market_depth` module pulls prices and available volumes from Local Bitcoins and plots them
 
 ##Setup and usage
 To use the API modules:
@@ -77,10 +77,10 @@ _Optional_ if the OKPay IPN module is required
 - Install the package on your server
 - Start the listener by running `listener.py`
 
-_Local Markets Depth_ module
+_Market Depth_ module
 - Call from the command line with a list of countries and/or currencies
 - Currently supports UK, USA, GERMANY, ITALY, SPAIN, AUSTRALIA, ARGENTINA, NETHERLANDS, BRAZIL, FRANCE, GBP, USD, EUR
-- example: `$ python local_markets.py USD GBP EUR`
+- example: `$ python market_depth.py USD GBP EUR`
 
 ##Requirements
 - `Python 2.7`
@@ -89,6 +89,6 @@ _Local Markets Depth_ module
 
 - `suds` for OKPay API and listener only
 
-- `bs4` (BeautifulSoup) for local markets depth only
+- `bs4` (BeautifulSoup) for markets depth only
 
-- `matplotlib` for local markets depth only
+- `matplotlib` for market depth only
