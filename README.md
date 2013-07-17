@@ -1,14 +1,17 @@
 #local-bitcoins-api
 ==================
 
+##Purpose
+
 This package contains:
 - `lb_api.py` slightly extended wrapper for the Local Bitcoins API based on that provided by Local Bitcoins
 - `okpay_api.py` a complete wrapper for the OKPay API including a facility for Bitcoin payments
 - `listener.py` a listener to receive payment notifications from OKPay and release escrows on Local Bitcoins
 
-#WARNING
 
-This is still a work in progress until testing is completed.
+##WARNING
+
+This is still a work in progress until testing is completed and the app has been checked by Local Bitcoins.
 
 ##Tests status
 
@@ -23,7 +26,7 @@ _Listener_
 
 ##Local Bitcoins API
 
-The `lb_api.py` module implements all the existing functionality of the official Local Bitcoins API (see docs for details):
+The `lb_api.py` module implements all the existing functionality of the official Local Bitcoins API (see [the API docs](https://localbitcoins.com/api-docs/) for details):
 - `get_escrows()`
 - `release_escrow(escrow)`
 - `get_ads()`
@@ -33,6 +36,22 @@ In addition the following functions have been added (unofficial and so may be de
 - `update_prices(price_equation, trade_type)` - Updates all price equations for ads of a given type. Returns an array of responses from each call of the `edit_ad` function
 - `delete_ad(ad_id)` - Unofficial API function for deleting an ad by passing the ad_id number
 - `delete_ads(start, end)` - Unofficial API function for deleting multiple ads from a start ad_id number (default 0) to an end ad_id number (default 'inf'). Returns an array of responses in the form {'success': [1 0][, 'deleted_id': ad_id, 'error': error]}
+
+##OKPay API
+
+The `okpay_api.py` module implements the API from OKPay and can be used by anyone who wants to integrate their Local Bitcoins app with OKPay's payment system. These functions are taken directly from the API.
+- `get_date-time()`
+- `get_balance()`
+- `send_money(destination, currency, amount, comment, receiver_pays_fees)`
+- `check_account(destination)`
+- `get_transaction(transaction, invoice)`
+- `get_history(start, end, page_size, page_num)`
+- `withdraw_to_ecurrency(payment_method, pay_system_account, amount, currency, fees_from_amount, invoice)`
+- `get_withdrawal_fee(payment_method, amount, currency, fees_from_amount)`
+
+In addition, the following functions have been added:
+- `get_balance(currency)` - By default, the OKPay `get_balance` function returns details of all wallets. You can also now pass a three-letter currency code to get just that wallet's balance.
+- `withdraw_to_BTC(bitcoin_wallet, amount, currency, fees_from_amount=True)` - Used to simplify Bitcoin withdrawals and returns the same as `withdraw_to_ecurrency`.
 
 ##Setup
 To use the package:

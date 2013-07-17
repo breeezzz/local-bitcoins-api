@@ -224,6 +224,7 @@ def test():
 
     client1 = OkPayAPI(creds['okpay_key1'], creds['okpay_wallet1'])
     print client1.client
+    assert False
     client2 = OkPayAPI(creds['okpay_key2'], creds['okpay_wallet2'])
     
     print "Testing begins at",
