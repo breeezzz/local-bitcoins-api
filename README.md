@@ -7,6 +7,7 @@ This package contains:
 - `lb_api.py` slightly extended wrapper for the Local Bitcoins API based on that provided by Local Bitcoins and providing some additional functions via HTML where required
 - `okpay_api.py` a complete wrapper for the OKPay API including a facility for Bitcoin payments
 - `listener.py` a listener to receive payment notifications from OKPay's instant payment notification (IPN) system and release escrows on Local Bitcoins
+- `local_markets.py` a bonus command line tool to visualise the current depth of market in various countries and currencies
 
 ##WARNING
 
@@ -22,6 +23,9 @@ _OKPay API_
 
 _OKPay Listener_
 - tested locally, however requires hosting on a remote server to test properly with OKPay's IPN simulator.
+
+_Local Markets Depth_
+- tested but will have additional features added
 
 ##Local Bitcoins API
 
@@ -54,11 +58,15 @@ In addition, the following functions have been added/extended:
 
 ##OKPay Listener
 
-The `listener` module implement OKPay's instant payment notification (IPN) system. In essence this sets up a URL which waits for a message from OKPay, checks it is a valid message and that it applies to a real transaction, and then invokes the `release_escrow` function from `lb_api`.
+The `listener` module implements OKPay's instant payment notification (IPN) system. In essence this sets up a URL which waits for a message from OKPay, checks it is a valid message and that it applies to a real transaction, and then invokes the `release_escrow` function from `lb_api`.
 
 _Currently this module should be seen as incomplete as it does not check that the price and quantity match those in the corresponding escrow._
 
-##Setup
+##OKPay Listener
+
+The `local_markets` module pulls prices and available volumes from Local Bitcoins and plots them
+
+##Setup and usage
 To use the API modules:
 - Set up Local Bitcoins API [here](https://localbitcoins.com/accounts/api/)
 - Set up OKPay API [here](https://www.okpay.com/en/developers/interfaces/setup.html)
@@ -69,7 +77,18 @@ _Optional_ if the OKPay IPN module is required
 - Install the package on your server
 - Start the listener by running `listener.py`
 
+_Local Markets Depth_ module
+- Call from the command line with a list of countries and/or currencies
+- Currently supports UK, USA, GERMANY, ITALY, SPAIN, AUSTRALIA, ARGENTINA, NETHERLANDS, BRAZIL, FRANCE, GBP, USD, EUR
+- example: `$ python local_markets.py USD GBP EUR`
+
 ##Requirements
-`Python 2.7`
-`suds`
-`requests`
+- `Python 2.7`
+
+- `requests`
+
+- `suds` for OKPay API and listener only
+
+- `bs4` (BeautifulSoup) for local markets depth only
+
+- `matplotlib` for local markets depth only
