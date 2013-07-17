@@ -90,6 +90,6 @@ _Market Depth_ module
 
 - `suds` for OKPay API and listener only
 
-- `bs4` (BeautifulSoup) for markets depth only
+- `bs4` (BeautifulSoup) for market depth only
 
 - `matplotlib` for market depth only
