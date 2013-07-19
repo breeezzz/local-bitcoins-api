@@ -225,12 +225,15 @@ class OkPayAPI():
         
         return response
 
-def test():
+def get_creds():
     with open('C:\Users\Jamie\lba_config.txt') as f:
         creds = {}
         for line in f:
             creds[line.split(',')[0]] = line.split(',')[1].rstrip('\n')
+    return creds
 
+def test():
+    creds = get_creds()
     client1 = OkPayAPI(creds['okpay_key1'], creds['okpay_wallet1'])
     print client1.client
     assert False
@@ -273,4 +276,4 @@ def test():
     print "Tests complete at",
     print client2.get_date_time()
 
-test()
+#test()

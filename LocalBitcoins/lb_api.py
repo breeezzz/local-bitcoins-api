@@ -60,19 +60,25 @@ class LocalBitcoinsAPI():
             self.password = "your details here"
         else:
             self.password = password
-            
-        self.agent = requests.session()
+        print "Got creds"
+        print "Getting API session"
         self.access_token = self.get_access_token()
+        print "Logged on to API session"
+        self.agent = requests.session()
         self.agent_login()
+        print "Logged on to HTML session"
         
     def get_access_token(self):
         try:
-            token_file = open(".localbitcoins_token%s" % self.username, "r")
+            print "Getting stored access token"
+            token_file = open(".localbitcoins_token%s.txt" % self.username, "r")
             access_token = token_file.read()
+            print "Got stored access token"
             return access_token
         except IOError:
+            print "Getting remote access token"
             pass
-    
+  
         token_response = requests.post(
             "https://localbitcoins.com/oauth2/access_token/", 
             data={
@@ -82,14 +88,25 @@ class LocalBitcoinsAPI():
                 "username": self.username,
                 "password": self.password,
                 "scope": "read+write"}).json()
+        print "client_id", self.client_id
+        print "client_secret", self.client_secret
+        print "username", self.username
+        print "password", self.password
+        print "Posted to oauth2 url"
         if "access_token" not in token_response:
+            print token_response
+            print "No key in response"
             exit(1)
         access_token = token_response["access_token"]
-        with open(".localbitcoins_token%s" % self.username, "w") as f:
+        print "Got new access token"
+        with open(".localbitcoins_token%s.txt" % self.username, "w") as f:
             f.write(access_token)
+        print "Stored new access token"
+
         return access_token
     
     def get_escrows(self):
+        print "Getting escrows"
         r = requests.post(
                 'https://localbitcoins.com/api/escrows/',
                 data={'access_token': self.access_token})
@@ -198,4 +215,4 @@ def test():
     print
     print "Testing complete"
 
-test()
+#test()
