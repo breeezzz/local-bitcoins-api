@@ -6,6 +6,7 @@
 This package contains:
 - `lb_api.py` slightly extended wrapper for the Local Bitcoins API based on that provided by Local Bitcoins and providing some additional functions via HTML where required
 - `okpay_api.py` a complete wrapper for the OKPay API including a facility for Bitcoin payments
+- `listener.php` PHP code to act as a gatekeeper, verifying whether a payment notification really came from OKPay
 - `listener.py` a listener to receive payment notifications from OKPay's instant payment notification (IPN) system and release escrows on Local Bitcoins
 - `market_depth.py` a bonus command line tool to visualise the current depth of the Local Bitcoins market in various countries and currencies
 
@@ -22,7 +23,8 @@ _OKPay API_
 - all functions have been tested on live accounts
 
 _OKPay Listener_
-- tested locally, however requires hosting on a remote server to test properly with OKPay's IPN simulator.
+- PHP file is tested and working perfectly
+- Python file is working up to a point, but is unable to successfully acquire an OAuth2 token for Local Bitcoins
 
 _Local Markets Depth_
 - tested but will have additional features added
@@ -58,7 +60,9 @@ In addition, the following functions have been added/extended:
 
 ##OKPay Listener
 
-The `listener.py` module implements OKPay's instant payment notification (IPN) system. In essence this sets up a URL which waits for a message from OKPay, checks it is a valid message and that it applies to a real transaction, and then invokes the `release_escrow` function from `lb_api`.
+The `listener.php` waits for a message from OKPay, checks it is a valid message from  OKPay and passes it on to `listener.py`.
+
+The `listener.py` module implements OKPay's instant payment notification (IPN) system, checking a message applies to a real transaction that hasn't already been dealt with, and then invokes the `release_escrow` function from `lb_api`.
 
 _Currently this module should be seen as incomplete as it does not check that the price and quantity match those in the corresponding escrow._
 
