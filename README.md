@@ -6,7 +6,7 @@
 This package contains:
 - `lb_api.py` slightly extended wrapper for the Local Bitcoins API based on that provided by Local Bitcoins and providing some additional functions via HTML where required
 - `okpay_api.py` a complete wrapper for the OKPay API including a facility for Bitcoin payments
-- `listener.php` PHP code to act as a gatekeeper, verifying whether a payment notification really came from OKPay
+- `listener.php` PHP code to act as a gatekeeper on the server, verifying whether a payment notification really came from OKPay
 - `listener.py` a listener to receive payment notifications from OKPay's instant payment notification (IPN) system and release escrows on Local Bitcoins
 - `market_depth.py` a bonus command line tool to visualise the current depth of the Local Bitcoins market in various countries and currencies
 
