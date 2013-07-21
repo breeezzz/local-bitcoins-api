@@ -1,0 +1,9 @@
+okpay_email,sales@botsofbitcoin.com
+okpay_wallet,OK485154164
+okpay_client,837238662L
+okpay_key,i7DXm63Sen2QEs95Ftj4AGq89
+lb_client_id,b7a1e39ffda9cc806518
+lb_client_secret,89f3e63a48ab25d4a1d4a99535cc3d98cf795b64
+lb_username,botsofbitcoin
+lb_password,4y0hD4aulVbz
+lb_wallet,13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo

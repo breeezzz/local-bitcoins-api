@@ -1,6 +1,12 @@
 #local-bitcoins-api
 ==================
 
+Developed by Bots of Bitcoin
+
+Donations gratefully accepted at *13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo*
+
+v0.1 - Release candidate
+
 ##Purpose
 
 This package contains:
@@ -9,10 +15,6 @@ This package contains:
 - `listener.php` PHP code to act as a gatekeeper on the server, verifying whether a payment notification really came from OKPay
 - `listener.py` a listener to receive payment notifications from OKPay's instant payment notification (IPN) system and release escrows on Local Bitcoins
 - `market_depth.py` a bonus command line tool to visualise the current depth of the Local Bitcoins market in various countries and currencies
-
-##WARNING
-
-This is still a work in progress until testing on the OKPay IPN is completed and the app has been checked by Local Bitcoins.
 
 ##Tests status
 
@@ -23,8 +25,8 @@ _OKPay API_
 - all functions have been tested on live accounts
 
 _OKPay Listener_
-- PHP file is tested and working perfectly
-- Python file is working up to a point, but is unable to successfully acquire an OAuth2 token for Local Bitcoins
+- PHP file is tested and working
+- Python file is fully tested on live accounts and releases transactions as expected
 
 _Local Markets Depth_
 - tested but will have additional features added
@@ -64,7 +66,9 @@ The `listener.php` waits for a message from OKPay, checks it is a valid message 
 
 The `listener.py` module implements OKPay's instant payment notification (IPN) system, checking a message applies to a real transaction that hasn't already been dealt with, and then invokes the `release_escrow` function from `lb_api`.
 
-_Currently this module should be seen as incomplete as it does not check that the price and quantity match those in the corresponding escrow._
+The only public function is:
+- `set_creds(lb_username, lb_password, lb_client_id, lb_client_secret, okpay_wallet, okpay_email, okpay_key, okpay_client)`, used to set all authorisation parameters.
+
 
 ##Market Depth
 
@@ -75,7 +79,8 @@ To use the API modules:
 - Set up Local Bitcoins API [here](https://localbitcoins.com/accounts/api/)
 - Set up OKPay API [here](https://www.okpay.com/en/developers/interfaces/setup.html)
 - Add credentials to the two API files, or alternatively call them using the necessary credentials
-
+- You can add all credentials to a file on your server by calling `set_creds`
+	
 _Optional_ if the OKPay IPN module is required
 - Set up OKPay instant payment notifications (if required) - [instructions](https://www.okpay.com/en/developers/ipn/setup.html)
 - Install the package on your server
