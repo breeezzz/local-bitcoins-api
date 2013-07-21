@@ -37,7 +37,7 @@ import requests
 import json
 
 import logging
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 hdr = {'Referer' : 'https://localbitcoins.com/'}
 
 class LocalBitcoinsAPI():
@@ -69,6 +69,39 @@ class LocalBitcoinsAPI():
         print "Logged on to HTML session"
         
     def get_access_token(self):
+        try:
+            # Deliberately broken to force re-authentication each time
+#            token_file = open(".localbitcoins_token", "r")
+            access_token = token_file.read()
+            print "Using access token"
+            return access_token
+        except IOError, exc:
+            pass
+        except Exception:
+            pass
+    
+        token_response = requests.post(
+            "https://localbitcoins.com/oauth2/access_token/", 
+            data={
+                "grant_type": "password",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "username": self.username,
+                "password": self.password,
+                "scope": "read+write"}).json()
+        if "access_token" not in token_response:
+            print token_response
+            print "Could not log in: " + token_response.get("error_description", token_response["error"]) 
+            exit(1)
+        access_token = token_response["access_token"]
+        print "Login OK."
+        with open(".localbitcoins_token", "w") as f:
+            f.write(access_token)
+            print "Saved access token."
+    
+        return access_token
+
+    def get_access_token2(self):
         try:
             print "Getting stored access token"
             token_file = open(".localbitcoins_token%s.txt" % self.username, "r")
@@ -188,21 +221,22 @@ class LocalBitcoinsAPI():
         
 def test():
     with open('C:\Users\Jamie\lba_config.txt') as f:
+#    with open('creds.txt') as f:
         creds = {}
         for line in f:
             creds[line.split(',')[0]] = line.split(',')[1].rstrip('\n')
 
-    client1 = LocalBitcoinsAPI(creds['lb_client_id1'], creds['lb_client_secret1'],
+    client2 = LocalBitcoinsAPI(creds['lb_client_id1'], creds['lb_client_secret1'],
                                creds['lb_username1'], creds['lb_password1'])
-    client2 = LocalBitcoinsAPI(creds['lb_client_id2'], creds['lb_client_secret2'],
-                               creds['lb_username2'], creds['lb_password2'])
+#    client2 = LocalBitcoinsAPI(creds['lb_client_id'], creds['lb_client_secret'],
+#                               creds['lb_username'], creds['lb_password'])
 
     print "Checking get_ads for test account 2",
     print client2.get_ads()    
     print "Checking escrows for test account 2",
     print client2.get_escrows()
     print "Checking escrows for test account 1",
-    escrows = client1.get_escrows()
+    escrows = client2.get_escrows()
     print escrows
     print "Checking for 'globalcoins' on test account 2 escrows",
     for escrow in escrows['data']['escrow_list']:
@@ -211,8 +245,8 @@ def test():
     for escrow in escrows['data']['escrow_list']:
         if 'globalcoins' in escrow['data']['buyer_username']:
             print "Releasing escrow",
-            print client1.release_escrow(escrow)
+            print client2.release_escrow(escrow)
     print
     print "Testing complete"
 
-#test()
+test()
