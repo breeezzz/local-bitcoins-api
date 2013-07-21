@@ -12,7 +12,7 @@ import datetime
 from hashlib import sha256
 
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 class OkPayAPI():
     def __init__(self, api_password=None, wallet_id=None):
@@ -229,51 +229,5 @@ def get_creds():
     with open('C:\Users\Jamie\lba_config.txt') as f:
         creds = {}
         for line in f:
-            creds[line.split(',')[0]] = line.split(',')[1].rstrip('\n')
+            creds[line.split(',')[0]] = line.split(',')[1].rstrip()
     return creds
-
-def test():
-    creds = get_creds()
-    client1 = OkPayAPI(creds['okpay_key1'], creds['okpay_wallet1'])
-    print client1.client
-    assert False
-    client2 = OkPayAPI(creds['okpay_key2'], creds['okpay_wallet2'])
-    
-    print "Testing begins at",
-    print client2.get_date_time()
-    
-    print "Checking balance",
-    print client2.get_balance()
-    print "Checking individual balance - USD",
-    print client2.get_balance('USD')
-
-    print "Checking for test account 1 using email address",
-    print client2.check_account('sales@botsofbitcoin.com')
-    print "Checking for test account 2 using email address",
-    print client2.check_account('jamie@botsofbitcoin.com')
-
-    print "Checking for test account 1 using wallet ID",
-    print client2.check_account(creds['okpay_wallet1'])
-    
-    print "Getting history for test account 1",
-    print client1.get_history()
-
-    print "Getting history for test account 2",
-    print client2.get_history()
-    
-    print "Getting transaction details for transaction 1998491L",
-    print client2.get_transaction(1998491L)
-    
-    print "Sending money from test account 2 to test account 1",
-    print client2.send_money('sales@botsofbitcoin.com', 'USD', 0.01, 'comment goes here', True)
-    
-    print "Checking withdrawal fee to BTC from test account 2",
-    print client2.get_withdrawal_fee('BTC', 0.10, 'USD', True)
-    
-    print "Withdrawing to BTC from test account 2",
-    print client2.withdraw_to_BTC('13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo', 0.25, 'BTC')
-    
-    print "Tests complete at",
-    print client2.get_date_time()
-
-#test()

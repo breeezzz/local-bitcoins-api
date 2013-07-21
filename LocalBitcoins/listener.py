@@ -21,96 +21,106 @@ class OKPay_handler(BaseHTTPRequestHandler):
         try:
             self.send_response(200)
             self.end_headers()
-            print "Received POST"
-
             ctype, _pdict = cgi.parse_header(self.headers.getheader('content-type'))
             if ctype == 'application/x-www-form-urlencoded':
-                print "Parsing variables"
                 length = int(self.headers.getheader('content-length'))
                 self.postvars = urlparse.parse_qs(self.rfile.read(length), keep_blank_values=True)
             else:
                 self.postvars = {}
-            response = handle_POST(self.postvars)
+            handle_POST(self.postvars)
+            print "Back in handler."
         except :
             pass
 
+
 def handle_POST(postvars):
-    print "Received message"
+    logging.info("Received message")
     creds = get_creds()
-    
-    if is_ok_to_release(postvars):
-        print "Getting LB client"
+    ok_to_release, release_url = is_ok_to_release(postvars)
+    if ok_to_release:
+        logging.debug("Getting LB client")
         client = LocalBitcoinsAPI(creds['lb_client_id'], creds['lb_client_secret'],
                                   creds['lb_username'], creds['lb_password'])
-        print "Got LB client"
-        response = client.release_escrow(postvars['ok_txn_id'][0])
-        print "LB txn id =", response
-        logging.info(response['message'])
+        logging.debug("Got LB client")
+        
+        response = client.release_escrow(release_url)
+        logging.info("Released transaction")
+        logging.info("Transaction reference %s - %s" % (postvars['ok_txn_comment'][0]))
+        logging.info(response['data']['message'])
     
-    return response
-    
+        
 def is_ok_to_release(postvars):
-    print "Checking if ok to release"
+    logging.debug("Checking if ok to release")
     if (is_status_complete(postvars['ok_txn_status'][0]) and
         is_transaction_unique(postvars['ok_txn_id'][0]) and
-        is_receiver_email_correct(postvars['ok_receiver_email'][0]) and
-        is_transaction_details_ok(postvars)):
-        print "OK"
-        return True
-    return False
+        is_receiver_email_correct(postvars['ok_receiver_email'][0])):
+        
+        ok_to_release, release_url = is_transaction_details_ok(postvars)
+
+    return ok_to_release, release_url
     
 def is_status_complete(status):
-    print "Checking if status is complete"
+    logging.debug("Checking if status is complete")
     return status == 'completed'
 
 def is_transaction_unique(transaction_id):
-    print "Checking if transaction is unique"    
+    logging.debug("Checking if transaction is unique")
     with open('existing_transactions.csv', 'rb') as f:
         existing_transactions = csv.reader(f)
         transactions = [line for line in existing_transactions]
         
     response = transaction_id not in transactions
-    print "Is unique =", response
     with open('existing_transactions.csv', 'ab') as f:
         f.write('%s\n' % transaction_id)
 
     return response
 
 def is_receiver_email_correct(email):
-    print "Checking receiver email address is correct"
+    logging.debug("Checking receiver email address is correct")
     valid_receiver_emails = ['sales@botsofbitcoin.com'] 
     
     return email in valid_receiver_emails    
 
 def is_transaction_details_ok(postvars):
-    print "Checking if transaction details match (code not completed here: return True for test)"
-    return True
-    creds = get_creds()
-    
-    # Check price, currency and amount from the escrow release API
-    lb_client = LocalBitcoinsAPI(creds['lb_client_id'], creds['lb_client_secret'])
+    logging.debug("Checking transaction details match")
+    creds = get_creds()    
+    # Check currency and amount from the escrow release API
+    lb_client = LocalBitcoinsAPI(creds['lb_client_id'], creds['lb_client_secret'],
+                                 creds['lb_username'], creds['lb_password'])
     escrows = lb_client.get_escrows()
-    lb_transaction = {escrow for escrow in escrows
-                        if escrow['data']['reference_code'] == postvars['transaction_id']}
-    
-    ok_client = OkPayAPI(creds['okpay_client'], creds['okpay_key'])
-    ok_transaction = ok_client.get_transaction('transaction_id')
-    # TODO: Compare the two sets of transactions to ensure price and quantity match
-    return False
-
-def log_response(response):
-    with open('okpay_log.txt', 'ab') as log:
-        log.write('%s\n\n' % response)
-
+    for escrow in escrows['data']['escrow_list']:
+        if escrow['data']['reference_code'] == postvars['ok_txn_comment'][0]:
+            lb_transaction = escrow
+    logging.debug("Got LB transaction")
+    if (lb_transaction['data']['currency'] == postvars['ok_txn_currency'][0] and
+        lb_transaction['data']['amount'] == postvars['ok_txn_amount'][0]):
+        return True, lb_transaction['actions']['release_url']
+    else:
+        return False, ''
     
 def get_creds():
-    with open('creds.txt') as f:
+    logging.debug("Getting stored credentials")
+    with open('creds.txt', 'rb') as f:
         creds = {}
         for line in f:
-            creds[line.split(',')[0]] = line.split(',')[1].rstrip('\n')
+            creds[line.split(',')[0]] = line.split(',')[1].rstrip()
     return creds
 
-
+def set_creds(lb_username, lb_password, lb_client_id, lb_client_secret,
+              okpay_wallet, okpay_email, okpay_key, okpay_client):
+    logging.debug("Storing credentials")
+    with open('creds.txt', 'wb') as f:
+        f.writeline('lb_username,%s' % lb_username)
+        f.writeline('lb_password,%s' % lb_password)
+        f.writeline('lb_client_id,%s' % lb_client_id)
+        f.writeline('lb_client_secret,%s' % lb_client_secret)
+        f.writeline('okpay_wallet,%s' % okpay_wallet)
+        f.writeline('okpay_email,%s' % okpay_email)
+        f.writeline('okpay_key,%s' % okpay_key)
+        f.writeline('okpay_client,%s' % okpay_client)
+    f.close()
+    
+    
 def main():
     # Check for credentials
     try:
@@ -118,7 +128,9 @@ def main():
         creds.close()
     except IOError, e:
         print e
-        print "Set up your credentials file, creds.txt"
+        print ("Set up your credentials file in creds.txt or by calling \
+                set_creds(lb_username, lb_password, lb_client_id, lb_client_secret, \
+                okpay_wallet, okpay_email, okpay_key, okpay_client)")
         return(0)       
     # Start the server
     try:

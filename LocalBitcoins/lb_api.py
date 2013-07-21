@@ -68,50 +68,19 @@ class LocalBitcoinsAPI():
         self.agent_login()
         print "Logged on to HTML session"
         
+
     def get_access_token(self):
         try:
-            # Deliberately broken to force re-authentication each time
-#            token_file = open(".localbitcoins_token", "r")
+            logging.debug("Getting stored access token")
+            token_file = open("localbitcoins_token%s.txt" % self.username, "rb")
             access_token = token_file.read()
-            print "Using access token"
+            logging.debug("Got stored access token")
             return access_token
-        except IOError, exc:
-            pass
-        except Exception:
-            pass
-    
-        token_response = requests.post(
-            "https://localbitcoins.com/oauth2/access_token/", 
-            data={
-                "grant_type": "password",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "username": self.username,
-                "password": self.password,
-                "scope": "read+write"}).json()
-        if "access_token" not in token_response:
-            print token_response
-            print "Could not log in: " + token_response.get("error_description", token_response["error"]) 
-            exit(1)
-        access_token = token_response["access_token"]
-        print "Login OK."
-        with open(".localbitcoins_token", "w") as f:
-            f.write(access_token)
-            print "Saved access token."
-    
-        return access_token
 
-    def get_access_token2(self):
-        try:
-            print "Getting stored access token"
-            token_file = open(".localbitcoins_token%s.txt" % self.username, "r")
-            access_token = token_file.read()
-            print "Got stored access token"
-            return access_token
         except IOError:
-            print "Getting remote access token"
+            logging.debug("Getting new access token")
             pass
-  
+
         token_response = requests.post(
             "https://localbitcoins.com/oauth2/access_token/", 
             data={
@@ -121,43 +90,52 @@ class LocalBitcoinsAPI():
                 "username": self.username,
                 "password": self.password,
                 "scope": "read+write"}).json()
-        print "client_id", self.client_id
-        print "client_secret", self.client_secret
-        print "username", self.username
-        print "password", self.password
-        print "Posted to oauth2 url"
-        if "access_token" not in token_response:
-            print token_response
-            print "No key in response"
-            exit(1)
-        access_token = token_response["access_token"]
-        print "Got new access token"
-        with open(".localbitcoins_token%s.txt" % self.username, "w") as f:
-            f.write(access_token)
-        print "Stored new access token"
 
+        logging.debug("Posted to oauth2 url")
+        
+        print "Response", token_response
+
+        if "access_token" not in token_response:
+            logging.fatal("No key in response")
+            exit(1)
+
+        access_token = token_response["access_token"]
+        logging.debug("Got new access token")
+        with open("localbitcoins_token%s.txt" % self.username, "wb") as f:
+            f.write(access_token)
+        logging.debug("Saved access token.")
+        
         return access_token
     
     def get_escrows(self):
-        print "Getting escrows"
+        logging.debug("Getting escrows")
         r = requests.post(
                 'https://localbitcoins.com/api/escrows/',
                 data={'access_token': self.access_token})
         return json.loads(r.text)
         
-    def release_escrow(self, escrow):
-        release_url = escrow['actions']['release_url']
+    def release_escrow(self, release_url=None, escrow=None):
+        logging.debug('Releasing escrow')
+        if not release_url == None:
+            pass
+        elif not escrow == None:
+            release_url = escrow['actions']['release_url']
+            
         r = requests.post(release_url,
                 data={'access_token': self.access_token})
-        return json.loads(r.text)
+        response = json.loads(r.text)
+        
+        return response
     
     def get_ads(self):
+        logging.debug('Getting ads')
         r = requests.get(
                 'https://localbitcoins.com/api/ads/',
                 params={'access_token': self.access_token})
         return json.loads(r.text)
     
     def edit_ad(self, ad_id, visibility, min_amount, max_amount, price_equation):
+        logging.debug('Editing ad')
         r = requests.get(
                 'https://localbitcoins.com/api/ad/%s/' % ad_id,
                 params={'visibility': visibility,
@@ -170,6 +148,7 @@ class LocalBitcoinsAPI():
         ''' Pass in a price equation and type of ad you want it to apply to
             and all your ads of that type will be updated. Returns a list of
             responses to the edits '''
+        logging.debug('Upating prices')
         ads = self.get_ads()['data']['ad_list']
         response = []
         for ad in ads:
@@ -206,6 +185,7 @@ class LocalBitcoinsAPI():
         
     def delete_ad(self, ad_id):
         ''' Unofficial API function '''
+        logging.debug('Deleting ad')
         try:
             r = self.agent.get(
                      'https://localbitcoins.com/ads_delete/%s' % ad_id,
@@ -219,34 +199,3 @@ class LocalBitcoinsAPI():
 
         return response
         
-def test():
-    with open('C:\Users\Jamie\lba_config.txt') as f:
-#    with open('creds.txt') as f:
-        creds = {}
-        for line in f:
-            creds[line.split(',')[0]] = line.split(',')[1].rstrip('\n')
-
-    client2 = LocalBitcoinsAPI(creds['lb_client_id1'], creds['lb_client_secret1'],
-                               creds['lb_username1'], creds['lb_password1'])
-#    client2 = LocalBitcoinsAPI(creds['lb_client_id'], creds['lb_client_secret'],
-#                               creds['lb_username'], creds['lb_password'])
-
-    print "Checking get_ads for test account 2",
-    print client2.get_ads()    
-    print "Checking escrows for test account 2",
-    print client2.get_escrows()
-    print "Checking escrows for test account 1",
-    escrows = client2.get_escrows()
-    print escrows
-    print "Checking for 'globalcoins' on test account 2 escrows",
-    for escrow in escrows['data']['escrow_list']:
-        if 'globalcoins' in escrow['data']['buyer_username']:
-            print 'OK to release'
-    for escrow in escrows['data']['escrow_list']:
-        if 'globalcoins' in escrow['data']['buyer_username']:
-            print "Releasing escrow",
-            print client2.release_escrow(escrow)
-    print
-    print "Testing complete"
-
-test()
