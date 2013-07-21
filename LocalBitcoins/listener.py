@@ -8,8 +8,6 @@ Created on 15 Jul 2013
 
 import urlparse
 import cgi
-import requests
-from requests import Request, Session
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import csv
 from lb_api import LocalBitcoinsAPI
