@@ -44,8 +44,8 @@ try:
 except:
     logging.warning("BeautifulSoup is required for editing ads using the unofficial HTML API")
 
-hdr = {'Referer' : 'https://localbitcoins.com/'
-      }
+hdr = {'Referer' : 'https://localbitcoins.com/'}
+
 class LocalBitcoinsAPI():
     def __init__(self, client_id=None, client_secret=None, username=None, password=None):
         ''' Set up your API Access Information

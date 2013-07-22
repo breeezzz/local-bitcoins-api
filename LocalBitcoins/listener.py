@@ -42,7 +42,6 @@ def handle_POST(postvars):
                                   creds['lb_username'], creds['lb_password'])
         logging.debug("Got LB client")
         
-<<<<<<< HEAD
         ad_no = release_url.split('/')[-2]
         ad_url = ('https://localbitcoins.com/escrow_seller/' + ad_no)
         client.send_message(ad_url, 'Automated response: Thanks for your order - your coins will now be released.')
@@ -55,22 +54,16 @@ def handle_POST(postvars):
         print ad_url
         client.send_message(ad_url, 'Automated response: There was a problem with your payment. Please email sales@botsofbitcoin.com for human intervention.')
 
-=======
         response = client.release_escrow(release_url)
         logging.info("Released transaction")
         logging.info("Transaction reference %s - %s" % (postvars['ok_txn_comment'][0]))
         logging.info(response['data']['message'])
     
         
->>>>>>> refs/remotes/origin/master
 def is_ok_to_release(postvars):
     logging.debug("Checking if ok to release")
     if (is_status_complete(postvars['ok_txn_status'][0]) and
-<<<<<<< HEAD
         is_transaction_unique(postvars['ok_txn_comment'][0]) and
-=======
-        is_transaction_unique(postvars['ok_txn_id'][0]) and
->>>>>>> refs/remotes/origin/master
         is_receiver_email_correct(postvars['ok_receiver_email'][0])):
         
         ok_to_release, release_url = is_transaction_details_ok(postvars)
