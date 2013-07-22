@@ -3,3 +3,4 @@
 *.csv
 .localbitcoins_token
 *.pyc
+LocalBitcoins/creds.txt
