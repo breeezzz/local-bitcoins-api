@@ -2,9 +2,6 @@
 ==================
 
 Developed by Bots of Bitcoin
-
-Donations gratefully accepted at *13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo*
-
 v0.1 - Release candidate
 
 ##Purpose
@@ -103,3 +100,6 @@ _Market Depth_ module
 - `bs4` (BeautifulSoup) required for market depth and for editing ads using the `edit_ads_html` function
 
 - `matplotlib` for market depth only
+
+
+##Donations gratefully accepted at `13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo`
