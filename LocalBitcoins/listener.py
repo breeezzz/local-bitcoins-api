@@ -11,7 +11,6 @@ import cgi
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import csv
 from lb_api import LocalBitcoinsAPI
-from okpay_api import OkPayAPI
 
 import logging 
 logging.basicConfig(level=logging.DEBUG)
