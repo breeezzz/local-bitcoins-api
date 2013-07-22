@@ -102,4 +102,4 @@ _Market Depth_ module
 - `matplotlib` for market depth only
 
 
-##Donations gratefully accepted at `13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo`
+*Donations gratefully accepted at 13aHXq1uvusPrAAtmrrggkckBFC5WLFgXo*
