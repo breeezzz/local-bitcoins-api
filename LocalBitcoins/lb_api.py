@@ -233,19 +233,19 @@ class LocalBitcoinsAPI():
         post_data['submit'] = 'Publish advertisement'
         post_data['ad-trade_type'] = ad_trade_type
         post_data['ad-online_provider'] = ad_online_provider
-        post_data['ad-contact_hours'] = post_data['ad-msg'][0].split('\r')[0]
+        post_data['ad-contact_hours'] = post_data['ad-msg'][0].replace('Contact hours: ', '')
         
         new_ad_url = 'https://localbitcoins.com/advertise/'
         try:
             r = self.agent.post(new_ad_url, data=post_data, headers=hdr)
             if "alert alert-error" in r.text:
-                print r.text
-                assert False
-            response = {'ad_id': r.url.split('/')[-2]}
-            response['success'] = 1
+                response = {'success': 0, 'error': 'Failed to clone ad'}
+            else:
+                response = {'ad_id': r.url.split('/')[-2]}
+                response['success'] = 1
         except Exception, e:
             response = {'success': 0, 'error': e}
-
+        
         return response
     
     def edit_ad_html(self, ad_no, edits_dict=None):
