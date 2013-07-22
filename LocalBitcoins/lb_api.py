@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import requests
 import json
+
 import logging
 logging.basicConfig(level=logging.DEBUG)
 

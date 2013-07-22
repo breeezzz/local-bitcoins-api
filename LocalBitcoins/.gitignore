@@ -1,3 +1,6 @@
 /creds.txt
 /test.php
+<<<<<<< HEAD
 /logging.php
+=======
+>>>>>>> refs/remotes/origin/master
