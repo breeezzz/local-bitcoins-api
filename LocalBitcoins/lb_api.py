@@ -218,12 +218,12 @@ class LocalBitcoinsAPI():
             response = {'success': 0, 'error': e}
         return response
     
-    def clone_ad_html(self, ad_no, ad_trade_type, ad_online_provider, edits_dict=None):
+    def clone_ad_html(self, ad_id, ad_trade_type, ad_online_provider, edits_dict=None):
         ''' Unofficial API function
             Requires valid online provider and trade type parameters as they
             are not present in the cloned ad'''
         logging.debug('Cloning ad')
-        ad_url = 'https://localbitcoins.com/ads_edit/%s' % ad_no
+        ad_url = 'https://localbitcoins.com/ads_edit/%s' % ad_id
         ad = self.agent.get(ad_url, headers=hdr).text
 
         soup = BeautifulSoup(ad)
