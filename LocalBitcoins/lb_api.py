@@ -35,11 +35,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import requests
 import json
-
 import logging
 logging.basicConfig(level=logging.DEBUG)
-hdr = {'Referer' : 'https://localbitcoins.com/'}
 
+try:
+    from bs4 import BeautifulSoup
+except:
+    logging.warning("BeautifulSoup is required for editing ads using the unofficial HTML API")
+
+hdr = {'Referer' : 'https://localbitcoins.com/'
+      }
 class LocalBitcoinsAPI():
     def __init__(self, client_id=None, client_secret=None, username=None, password=None):
         ''' Set up your API Access Information
@@ -66,6 +71,7 @@ class LocalBitcoinsAPI():
         print "Logged on to API session"
         self.agent = requests.session()
         self.agent_login()
+        self.csrftoken = self.agent.cookies['csrftoken']
         print "Logged on to HTML session"
         
 
@@ -182,6 +188,19 @@ class LocalBitcoinsAPI():
         for ad_id in delete_ids:
             response += [self.delete_ad(ad_id)]
         return response
+
+    def send_message(self, ad_url, message):
+        ''' Unofficial API function '''
+        logging.debug('Sending message')
+        try:
+            post_data = {'msg': message}
+            post_data['csrfmiddlewaretoken'] = self.csrftoken
+            self.agent.post(ad_url, data=post_data, headers=hdr)
+            response = {'success': 1}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+            pass
+        return response
         
     def delete_ad(self, ad_id):
         ''' Unofficial API function '''
@@ -196,6 +215,67 @@ class LocalBitcoinsAPI():
                 response = {'success': 0}
         except Exception, e:
             response = {'success': 0, 'error': e}
-
         return response
-        
+    
+    def edit_ad_html(self, ad_no, edits_dict=None):
+        ''' Unofficial API function '''
+        logging.debug('Editing ad')
+        ad_url = 'https://localbitcoins.com/ads_edit/%s' % ad_no
+        ad = self.agent.get(ad_url, headers=hdr).text
+        soup = BeautifulSoup(ad)
+        post_data = _get_post_data(soup)
+        post_data = dict(post_data.items() + edits_dict.items())
+
+        try:
+            post_data['csrfmiddlewaretoken'] = self.csrftoken
+            r = self.agent.post(ad_url, data=post_data, headers=hdr)
+            if "alert alert-success" in r.text:
+                print "Success!"
+                response = {'success': 1, 'edited_ad': ad_url}
+            elif "alert alert-error" in r.text:
+                response = {'success': 0, 'error': 'Failed to upload ad'}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+            
+        return response
+
+def _get_post_data(soup):
+    inputs = soup.find_all(_required_inputs)
+    inputs_dict = {tag.get('name'): tag.get('value') for tag in inputs}
+    controls = soup.find_all('select')
+    controls_dict = _add_controls(controls)
+    text = soup.find_all('textarea')
+    text_dict = _add_text(text)
+    
+    post_data = inputs_dict
+    post_data = dict(post_data.items() + controls_dict.items())
+    post_data = dict(post_data.items() + text_dict.items())
+    
+    return post_data
+
+def _required_inputs(tag):
+    discard_tags = ['csrfmiddlewaretoken', 'action_url', 'header', 'msg']
+    if tag.get('type') == 'hidden' and tag.get('name') in discard_tags:
+        return
+    if tag.get('type') == 'radio' and tag.get('checked') != 'checked':
+        return
+    elif tag.get('type') == 'checkbox' and tag.get('checked') != 'checked':
+        return
+    else:
+        return tag.name == 'input'
+
+def _add_controls(controls):
+    controls_dict = {}
+    for c in controls:
+        if c['name'] == 'ad-online_provider':
+            controls_dict[c['name']] = c.find_all('option')[0]['value']
+        else:
+            controls_dict[c['name']] = c.find_all('option',
+                                        attrs={'selected': "selected"})[0]['value']
+    return controls_dict
+
+def _add_text(text):
+    text_dict = {}
+    for t in text:
+        text_dict[t['name']] = (t.contents if len(t.contents) > 0 else "")
+    return text_dict

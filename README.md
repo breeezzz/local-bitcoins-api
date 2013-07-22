@@ -43,6 +43,7 @@ In addition the following functions have been added (unofficial and so may be de
 - `update_prices(price_equation, trade_type)` - Updates all price equations for ads of a given type. Returns an array of responses from each call of the `edit_ad` function
 - `delete_ad(ad_id)` - Unofficial API function for deleting an ad by passing the ad_id number
 - `delete_ads(start, end)` - Unofficial API function for deleting multiple ads from a start ad_id number (default 0) to an end ad_id number (default 'inf'). Returns an array of responses in the form `{'success': [1 or 0][, 'deleted_id': ad_id, 'error': error]}`
+- `edit_ad_html(ad_id, edits_dict)` - Unofficial API function for editing aspects of ads not yet covered by the official API. Pass in an ad ID number and a dictionary of field names to edit. These can be found by viewing the source of the edit ad page and are in the form `ad-field_name`.  
 
 ##OKPay API
 
@@ -99,6 +100,6 @@ _Market Depth_ module
 
 - `suds` for OKPay API and listener only
 
-- `bs4` (BeautifulSoup) for market depth only
+- `bs4` (BeautifulSoup) required for market depth and for editing ads using the `edit_ads_html` function
 
 - `matplotlib` for market depth only
