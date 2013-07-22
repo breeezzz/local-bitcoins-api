@@ -218,6 +218,36 @@ class LocalBitcoinsAPI():
             response = {'success': 0, 'error': e}
         return response
     
+    def clone_ad_html(self, ad_no, ad_trade_type, ad_online_provider, edits_dict=None):
+        ''' Unofficial API function
+            Requires valid online provider and trade type parameters as they
+            are not present in the cloned ad'''
+        logging.debug('Cloning ad')
+        ad_url = 'https://localbitcoins.com/ads_edit/%s' % ad_no
+        ad = self.agent.get(ad_url, headers=hdr).text
+
+        soup = BeautifulSoup(ad)
+        post_data = _get_post_data(soup)
+        post_data = dict(post_data.items() + edits_dict.items())
+        post_data['csrfmiddlewaretoken'] = self.csrftoken
+        post_data['submit'] = 'Publish advertisement'
+        post_data['ad-trade_type'] = ad_trade_type
+        post_data['ad-online_provider'] = ad_online_provider
+        post_data['ad-contact_hours'] = post_data['ad-msg'][0].split('\r')[0]
+        
+        new_ad_url = 'https://localbitcoins.com/advertise/'
+        try:
+            r = self.agent.post(new_ad_url, data=post_data, headers=hdr)
+            if "alert alert-error" in r.text:
+                print r.text
+                assert False
+            response = {'ad_id': r.url.split('/')[-2]}
+            response['success'] = 1
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+
+        return response
+    
     def edit_ad_html(self, ad_no, edits_dict=None):
         ''' Unofficial API function '''
         logging.debug('Editing ad')
@@ -231,7 +261,6 @@ class LocalBitcoinsAPI():
             post_data['csrfmiddlewaretoken'] = self.csrftoken
             r = self.agent.post(ad_url, data=post_data, headers=hdr)
             if "alert alert-success" in r.text:
-                print "Success!"
                 response = {'success': 1, 'edited_ad': ad_url}
             elif "alert alert-error" in r.text:
                 response = {'success': 0, 'error': 'Failed to upload ad'}
@@ -243,8 +272,10 @@ class LocalBitcoinsAPI():
 def _get_post_data(soup):
     inputs = soup.find_all(_required_inputs)
     inputs_dict = {tag.get('name'): tag.get('value') for tag in inputs}
+
     controls = soup.find_all('select')
     controls_dict = _add_controls(controls)
+
     text = soup.find_all('textarea')
     text_dict = _add_text(text)
     

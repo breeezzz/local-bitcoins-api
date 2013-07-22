@@ -36,11 +36,13 @@ The `lb_api.py` module implements all the existing functionality of the official
 - `get_ads()`
 - `edit_ad(ad_id, ad_id, visibility, min_amount, max_amount, price_equation)`
 
-In addition the following functions have been added (unofficial and so may be deprecated without warning):
+In addition the following functions have been added (those noted as unofficial may be deprecated without warning):
 - `update_prices(price_equation, trade_type)` - Updates all price equations for ads of a given type. Returns an array of responses from each call of the `edit_ad` function
 - `delete_ad(ad_id)` - Unofficial API function for deleting an ad by passing the ad_id number
+- `send_message(ad_url, message)` - Unofficial API function for sending automated response messages to customers to let them know their order will be released, or that there is a problem and to contact by email
 - `delete_ads(start, end)` - Unofficial API function for deleting multiple ads from a start ad_id number (default 0) to an end ad_id number (default 'inf'). Returns an array of responses in the form `{'success': [1 or 0][, 'deleted_id': ad_id, 'error': error]}`
-- `edit_ad_html(ad_id, edits_dict)` - Unofficial API function for editing aspects of ads not yet covered by the official API. Pass in an ad ID number and a dictionary of field names to edit. These can be found by viewing the source of the edit ad page and are in the form `ad-field_name`.  
+- `edit_ad_html(ad_id, edits_dict)` - Unofficial API function for editing aspects of ads not yet covered by the official API. Pass in an ad ID number and a dictionary of field names to edit. These can be found by viewing the source of the edit ad page and are in the form `ad-field_name`
+- `clone_ad_html(self, ad_no, ad_trade_type, ad_online_provider, edits_dict)` - Unofficial API function to clone an existing ad from the ad_id number. `ad-trade_type` (ONLINE_BUY, ONLINE_SELL, etc.) and `ad-online_provider` (OKPAY, PAYAL, MPESA, etc.) must be set as they do not appear in the cloned ad
 
 ##OKPay API
 
